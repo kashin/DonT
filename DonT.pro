@@ -24,11 +24,16 @@ symbian:TARGET.CAPABILITY += NetworkServices
 
 QT += opengl
 
-SOURCES += main.cpp mainwindow.cpp \
-    cube.cpp
+SOURCES += main.cpp \
+           mainwindow.cpp \
+           cube.cpp
 HEADERS += mainwindow.h \
-    cube.h
+           cube.h
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
 qtcAddDeployment()
+
+OTHER_FILES += \
+    vertexCode.vsh \
+    fragmentCode.fsh
