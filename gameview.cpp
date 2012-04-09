@@ -1,11 +1,11 @@
-#include "cube.h"
+#include "gameview.h"
 #include <QDebug>
 #include <QMouseEvent>
 #include <QFile>
 #include <QGLShader>
 #include <QGLShaderProgram>
 
-Cube::Cube(QWidget *parent, uint size)
+GameView::GameView(QWidget *parent, uint size)
     : QGLWidget(parent),
       mSize(size)
 {
@@ -15,7 +15,7 @@ Cube::Cube(QWidget *parent, uint size)
     mFragmentShader = new QGLShader(QGLShader::Fragment, this);
 }
 
-void Cube::initializeGL()
+void GameView::initializeGL()
 {
     makeGeometry();
     glEnable(GL_DEPTH_TEST);
@@ -52,7 +52,7 @@ void Cube::initializeGL()
     mProgram->setUniformValue("texture", 0);
 }
 
-void Cube::resizeGL(int width, int height)
+void GameView::resizeGL(int width, int height)
 {
     glViewport(0 , 0, width, height);
 
@@ -68,7 +68,7 @@ void Cube::resizeGL(int width, int height)
 #endif
 }
 
-void Cube::paintGL()
+void GameView::paintGL()
 {
     qglClearColor(Qt::lightGray);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -92,7 +92,7 @@ void Cube::paintGL()
     }
 }
 
-void Cube::makeGeometry()
+void GameView::makeGeometry()
 {
     static const int coords[6][4][3] = {
         { { +1, -1, -1 }, { -1, -1, -1 }, { -1, +1, -1 }, { +1, +1, -1 } },
@@ -114,7 +114,7 @@ void Cube::makeGeometry()
     }
 }
 
-void Cube::mouseMoveEvent(QMouseEvent *event)
+void GameView::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - mLastPosition.x();
     int dy = event->y() - mLastPosition.y();
@@ -127,12 +127,12 @@ void Cube::mouseMoveEvent(QMouseEvent *event)
     mLastPosition = event->pos();
 }
 
-void Cube::mousePressEvent(QMouseEvent *event)
+void GameView::mousePressEvent(QMouseEvent *event)
 {
     mLastPosition = event->pos();
 }
 
-void Cube::rotate(int xAngle, int yAngle, int zAngle)
+void GameView::rotate(int xAngle, int yAngle, int zAngle)
 {
     mXRotation += xAngle;
     mYRotation += yAngle;
@@ -140,7 +140,7 @@ void Cube::rotate(int xAngle, int yAngle, int zAngle)
     updateGL();
 }
 
-void Cube::setPicture(const QString &name)
+void GameView::setPicture(const QString &name)
 {
     if (mTexturePicture)
         delete mTexturePicture;

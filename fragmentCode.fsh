@@ -1,6 +1,16 @@
-#version 130
+//uniform mediump vec4 color;
 
-void main()
+//void main(void)
+
+//{
+
+//   gl_FragColor = color;
+
+//}
+
+uniform sampler2D texture;
+varying mediump vec4 texc;
+void main(void)
 {
-  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);
+    gl_FragColor = texture2D(texture, texc.st);
 }

@@ -1,5 +1,5 @@
-#ifndef CUBE_H
-#define CUBE_H
+#ifndef GAMEVIEW_H
+#define GAMEVIEW_H
 
 #include <QGLWidget>
 #include <QVector2D>
@@ -8,11 +8,11 @@
 class QGLShaderProgram;
 class QGLShader;
 
-class Cube : public QGLWidget
+class GameView : public QGLWidget
 {
     Q_OBJECT
 public:
-    Cube(QWidget *parent = 0, uint size = 1);
+    GameView(QWidget *parent = 0, uint size = 1);
     void setPicture(const QString& name);
 
 protected:
@@ -40,4 +40,4 @@ private:
     uint mSize;
 };
 
-#endif // CUBE_H
+#endif // GAMEVIEW_H

@@ -26,9 +26,11 @@ QT += opengl
 
 SOURCES += main.cpp \
            mainwindow.cpp \
-           cube.cpp
+           cube.cpp \
+    gameview.cpp
 HEADERS += mainwindow.h \
-           cube.h
+           cube.h \
+    gameview.h
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
