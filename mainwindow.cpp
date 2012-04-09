@@ -2,14 +2,16 @@
 
 #include <QtCore/QCoreApplication>
 #include "cube.h"
+#include "gameview.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      mCubeWidget(0)
+      mCentralWidget(0)
 {
-    mCubeWidget = new Cube(this);
-    setCentralWidget(mCubeWidget);
+    mCentralWidget = new GameView(this, 0.5);
+    connect (mCentralWidget, SIGNAL(closeApplication()), this, SLOT(close()));
+    setCentralWidget(mCentralWidget);
 }
 
 MainWindow::~MainWindow()

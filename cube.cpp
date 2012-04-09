@@ -5,17 +5,22 @@
 #include <QGLShader>
 #include <QGLShaderProgram>
 
-Cube::Cube(QWidget *parent, uint size)
-    : QGLWidget(parent),
+Cube::Cube(QGLShaderProgram *program, uint size, QObject *parent)
+    : QObject(parent),
       mSize(size)
 {
     mTexturePicture = new QPixmap(QString("./Porsche_Wallpapers_7.jpg"));
-    mProgram = new QGLShaderProgram(this);
+    mProgram = program;
     mVertexShader = new QGLShader(QGLShader::Vertex, this);
     mFragmentShader = new QGLShader(QGLShader::Fragment, this);
 }
 
-void Cube::initializeGL()
+Cube::~Cube()
+{
+    delete mTexturePicture;
+}
+
+void Cube::init()
 {
     makeGeometry();
     glEnable(GL_DEPTH_TEST);
@@ -36,7 +41,6 @@ void Cube::initializeGL()
     {
         qDebug() << Q_FUNC_INFO << "Can't compile fragment shader code: " << mVertexShader->log();
     }
-    mProgram  = new QGLShaderProgram(this);
     mProgram->addShader(mVertexShader);
     mProgram->addShader(mFragmentShader);
     mProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
@@ -52,34 +56,11 @@ void Cube::initializeGL()
     mProgram->setUniformValue("texture", 0);
 }
 
-void Cube::resizeGL(int width, int height)
+void Cube::draw()
 {
-    glViewport(0 , 0, width, height);
-
-#if !defined(QT_OPENGL_ES_2)
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-#ifndef QT_OPENGL_ES
-    glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
-#else
-    glOrthof(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
-#endif
-    glMatrixMode(GL_MODELVIEW);
-#endif
-}
-
-void Cube::paintGL()
-{
-    qglClearColor(Qt::lightGray);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     QMatrix4x4 m;
     m.ortho(-0.5f, +0.5f, +0.5f, -0.5f, 4.0f, 15.0f);
     m.translate(0.0f, 0.0f, -10.0f);
-    m.rotate(mXRotation / 16.0f, 1.0f, 0.0f, 0.0f);
-    m.rotate(mYRotation / 16.0f, 0.0f, 1.0f, 0.0f);
-    m.rotate(mZRotation / 16.0f, 0.0f, 0.0f, 1.0f);
-
     mProgram->setUniformValue("matrix", m);
     mProgram->enableAttributeArray(PROGRAM_VERTEX_ATTRIBUTE);
     mProgram->enableAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE);
@@ -87,7 +68,6 @@ void Cube::paintGL()
     mProgram->setAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE, mCoords.constData());
 
     for (int i = 0; i < 6; ++i) {
-        glBindTexture(GL_TEXTURE_2D, mTexture);
         glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
     }
 }
@@ -95,15 +75,13 @@ void Cube::paintGL()
 void Cube::makeGeometry()
 {
     static const int coords[6][4][3] = {
-        { { +1, -1, -1 }, { -1, -1, -1 }, { -1, +1, -1 }, { +1, +1, -1 } },
-        { { +1, +1, -1 }, { -1, +1, -1 }, { -1, +1, +1 }, { +1, +1, +1 } },
-        { { +1, -1, +1 }, { +1, -1, -1 }, { +1, +1, -1 }, { +1, +1, +1 } },
-        { { -1, -1, -1 }, { -1, -1, +1 }, { -1, +1, +1 }, { -1, +1, -1 } },
-        { { +1, -1, +1 }, { -1, -1, +1 }, { -1, -1, -1 }, { +1, -1, -1 } },
-        { { -1, -1, +1 }, { +1, -1, +1 }, { +1, +1, +1 }, { -1, +1, +1 } }
+        { { +mSize, -mSize, -mSize }, { -mSize, -mSize, -mSize }, { -mSize, +mSize, -mSize }, { +mSize, +mSize, -mSize } },
+        { { +mSize, +mSize, -mSize }, { -mSize, +mSize, -mSize }, { -mSize, +mSize, +mSize }, { +mSize, +mSize, +mSize } },
+        { { +mSize, -mSize, +mSize }, { +mSize, -mSize, -mSize }, { +mSize, +mSize, -mSize }, { +mSize, +mSize, +mSize } },
+        { { -mSize, -mSize, -mSize }, { -mSize, -mSize, +mSize }, { -mSize, +mSize, +mSize }, { -mSize, +mSize, -mSize } },
+        { { +mSize, -mSize, +mSize }, { -mSize, -mSize, +mSize }, { -mSize, -mSize, -mSize }, { +mSize, -mSize, -mSize } },
+        { { -mSize, -mSize, +mSize }, { +mSize, -mSize, +mSize }, { +mSize, +mSize, +mSize }, { -mSize, +mSize, +mSize } }
     };
-
-    mTexture = bindTexture(*mTexturePicture, GL_TEXTURE_2D);
 
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 4; ++j) {
@@ -112,32 +90,6 @@ void Cube::makeGeometry()
                            0.3 * coords[i][j][2]));
         }
     }
-}
-
-void Cube::mouseMoveEvent(QMouseEvent *event)
-{
-    int dx = event->x() - mLastPosition.x();
-    int dy = event->y() - mLastPosition.y();
-
-    if (event->buttons() & Qt::LeftButton) {
-        rotate(10 * dy, -10 * dx, 0);
-    } else if (event->buttons() & Qt::RightButton) {
-        rotate(10 * dy, 0, -10 * dx);
-    }
-    mLastPosition = event->pos();
-}
-
-void Cube::mousePressEvent(QMouseEvent *event)
-{
-    mLastPosition = event->pos();
-}
-
-void Cube::rotate(int xAngle, int yAngle, int zAngle)
-{
-    mXRotation += xAngle;
-    mYRotation += yAngle;
-    mZRotation += zAngle;
-    updateGL();
 }
 
 void Cube::setPicture(const QString &name)

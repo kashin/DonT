@@ -3,7 +3,7 @@
 
 #include <QtGui/QMainWindow>
 
-class Cube;
+class QGLWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -24,7 +24,7 @@ public:
     void showExpanded();
 
 private:
-    Cube* mCubeWidget;
+    QGLWidget* mCentralWidget;
 };
 
 #endif // MAINWINDOW_H

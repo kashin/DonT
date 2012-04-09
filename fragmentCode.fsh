@@ -1,13 +1,3 @@
-//uniform mediump vec4 color;
-
-//void main(void)
-
-//{
-
-//   gl_FragColor = color;
-
-//}
-
 uniform sampler2D texture;
 varying mediump vec4 texc;
 void main(void)

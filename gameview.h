@@ -7,13 +7,17 @@
 
 class QGLShaderProgram;
 class QGLShader;
+class Cube;
 
 class GameView : public QGLWidget
 {
     Q_OBJECT
 public:
-    GameView(QWidget *parent = 0, uint size = 1);
-    void setPicture(const QString& name);
+    GameView(QWidget *parent = 0, qreal size = 1);
+    void setCubePicture(const QString& name);
+
+signals:
+    void closeApplication();
 
 protected:
     void initializeGL();
@@ -22,6 +26,7 @@ protected:
 
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
     void rotate(int xAngle, int yAngle, int zAngle);
 
 private:
@@ -29,15 +34,22 @@ private:
 
 private:
     QPixmap* mTexturePicture;
+    QPixmap* mFieldPicture;
     QGLShaderProgram* mProgram;
     QGLShader* mVertexShader;
     QGLShader* mFragmentShader;
     int mXRotation, mYRotation, mZRotation;
-    QVector<QVector3D> mVertices;
-    QVector<QVector2D> mCoords;
-    GLuint mTexture;
+    QVector<QVector3D> mCubeVertices;
+    QVector<QVector2D> mCubeCoords;
+    QVector<QVector3D> mFieldVertices;
+    QVector<QVector2D> mFieldCoords;
+    QVector<QVector3D> mPirVertices;
+    QVector<QVector2D> mPirCoords;
+    GLuint mCubeTexture;
+    GLuint mFieldTexture;
+    GLuint mPirTexture;
     QPoint mLastPosition;
-    uint mSize;
+    qreal mSize;
 };
 
 #endif // GAMEVIEW_H
