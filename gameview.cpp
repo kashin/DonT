@@ -179,12 +179,6 @@ void GameView::mouseMoveEvent(QMouseEvent *event)
 void GameView::mousePressEvent(QMouseEvent *event)
 {
     mLastPosition = event->pos();
-    if (event->button() == Qt::MiddleButton && !mElements.isEmpty())
-    {
-        // FIXME: yeah, we are firing only from first element atm
-        fire(0);
-        updateGL();
-    }
 }
 
 void GameView::rotate(int xAngle, int yAngle, int zAngle)
@@ -205,34 +199,36 @@ void GameView::keyReleaseEvent(QKeyEvent *event)
     {
     case Qt::Key_Up:
         foreach (DrawElement* element, mElements)
-            element->moveToVector(QVector3D(0,0,-0.01));
-        updateGL();
+            element->moveToVector(QVector3D(0,0,0.01));
         break;
     case Qt::Key_Down:
         foreach (DrawElement* element, mElements)
             element->moveToVector(QVector3D(0,0,-0.01));
-        updateGL();
         break;
     case Qt::Key_Left:
         foreach (DrawElement* element, mElements)
             element->moveToVector(QVector3D(-0.01,0,0));
-        updateGL();
         break;
     case Qt::Key_Right:
         foreach (DrawElement* element, mElements)
             element->moveToVector(QVector3D(0.01,0,0));
-        updateGL();
         break;
     case Qt::Key_PageUp:
         foreach (DrawElement* element, mElements)
             element->moveToVector(QVector3D(0,0.01,0));
-        updateGL();
         break;
     case Qt::Key_PageDown:
         foreach (DrawElement* element, mElements)
             element->moveToVector(QVector3D(0,-0.01,0));
-        updateGL();
         break;
+    case Qt::Key_F:
+        if (!mElements.isEmpty())
+        {
+            // FIXME: yeah, we are firing only from first element atm
+            fire(0);
+        }
+        break;
+
     default:
         if (event->key() == Qt::Key_Escape)
            {
@@ -241,6 +237,7 @@ void GameView::keyReleaseEvent(QKeyEvent *event)
                return;
            }
     }
+    updateGL();
 }
 
 void GameView::fire(int elementIndex)

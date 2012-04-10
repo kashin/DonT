@@ -8,7 +8,7 @@ Bullet::Bullet(const QVector3D &center,
                const QVector3D &initialVelocity,
                QObject *parent)
     : QObject(parent),
-      mBulletStoped(-10),
+      mBulletStoped(-500),
       mBox(0),
       mVelocityTimer(0),
       mCaliber(caliber),
@@ -26,7 +26,7 @@ Bullet::Bullet(const QVector3D &center,
                    QString("./9mm_silver_bullet.jpg"), this);
     mVelocityTimer = new QTimer(this);
     mVelocityTimer->setSingleShot(false);
-    mVelocityTimer->setInterval(1000);
+    mVelocityTimer->setInterval(100);
     connect(mVelocityTimer, SIGNAL(timeout()), this, SLOT(onVelocityTimer()));
     mVelocityTimer->start();
 }
@@ -39,9 +39,9 @@ Bullet::~Bullet()
 
 void Bullet::initBulletsSizesMap()
 {
-    mBulletSizes.insert(Bullet9mm, QVector3D(0.00002, 0.00009, 0.00002));
-    mBulletSizes.insert(Bullet105mm, QVector3D(0.0001, 0.00105, 0.0001));
-    mBulletSizes.insert(Rocket, QVector3D(0.001, 0.01, 0.001));
+    mBulletSizes.insert(Bullet9mm, QVector3D(0.000002f, 0.000009f, 0.000002f));
+    mBulletSizes.insert(Bullet105mm, QVector3D(0.00001f, 0.000105f, 0.00001f));
+    mBulletSizes.insert(Rocket, QVector3D(0.0001f, 0.001f, 0.0001f));
 }
 
 void Bullet::draw(QGLShaderProgram *program)
@@ -84,7 +84,7 @@ const QPixmap* Bullet::texturePicture() const
 
 void Bullet::onVelocityTimer()
 {
-    if (mBulletStoped)
+    if (mBulletStoped >= 0)
         return;
     ++mBulletStoped;
     moveToVector(mVelocity);

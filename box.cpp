@@ -44,6 +44,7 @@ void Box::moveToVector(const QVector3D &vector)
     {
         (*it) += vector;
     }
+    mCenter += vector;
 }
 
 void Box::draw(QGLShaderProgram *program)
@@ -84,6 +85,6 @@ void Box::makeGeometry()
 
 QPair<QVector3D, QVector3D> Box::fireConditions() const
 {
-    return qMakePair(mCenter+(mSidesSize/2), QVector3D(0.0, 0.1, 0.0));
+    return qMakePair(mCenter+(mSidesSize/2), QVector3D(0.005, 0.0, 0.0));
 }
 
