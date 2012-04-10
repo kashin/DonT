@@ -57,30 +57,39 @@ void Box::draw(QGLShaderProgram *program)
     program->setAttributeArray(PROGRAM_VERTEX_ATTRIBUTE, mVertices.constData());
     program->setAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE, mCoords.constData());
 
-    for (int i = 0; i < mVertices.count(); ++i) {
-        glBindTexture(GL_TEXTURE_2D, texture());
-        glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+    glBindTexture(GL_TEXTURE_2D, texture());
+    for (int i = 0; i < mVertices.count(); i += 4) {
+        glDrawArrays(GL_TRIANGLE_FAN, i, 4);
     }
 }
 
 void Box::makeGeometry()
 {
-    static const qreal coords[6][4][3] = {
-        { { mCenter.x()+mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()-mSidesSize.z() } },
-        { { mCenter.x()+mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()+mSidesSize.z() } },
-        { { mCenter.x()+mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()+mSidesSize.z() } },
-        { { mCenter.x()-mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()-mSidesSize.z() } },
-        { { mCenter.x()+mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()-mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()-mSidesSize.z() } },
-        { { mCenter.x()-mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()-mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()+mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()+mSidesSize.z() }, { mCenter.x()-mSidesSize.x(), mCenter.y()+mSidesSize.y(), mCenter.z()+mSidesSize.z() } }
-    };
 
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            mCoords.append(QVector2D(j == 0 || j == 3, j == 0 || j == 1));
-            mVertices.append(QVector3D(0.3 * coords[i][j][0], 0.3 * coords[i][j][1],
-                           0.3 * coords[i][j][2]));
-        }
-    }
+    static qreal cubeArray[][3] = {
+         {0, 0, 0}, {0, 0.1, 0}, {0.1, 0.1, 0}, {0.1, 0, 0},
+         {0, 0, 0.1}, {0.1, 0, 0.1}, {0.1, 0.1, 0.1}, {0, 0.1, 0.1},
+         {0, 0, 0}, {0.1, 0, 0}, {0.1, 0, 0.1}, {0, 0, 0.1},
+         {0, 0.1, 0}, {0, 0.1, 0.1}, {0.1, 0.1, 0.1}, {0.1, 0.1, 0},
+         {0, 0.1, 0}, {0, 0, 0}, {0, 0, 0.1}, {0, 0.1, 0.1},
+         {0.1, 0, 0}, {0.1, 0.1, 0}, {0.1, 0.1, 0.1}, {0.1, 0, 0.1}
+     };
+
+     static qreal cubeTextureArray[][2] = {
+         {0, 0}, {1, 0}, {1, 1}, {0, 1},
+         {0, 0}, {0, 1}, {1, 1}, {1, 0},
+         {0, 0}, {1, 0}, {1, 1}, {0, 1},
+         {1, 0}, {0, 0}, {0, 1}, {1, 1},
+         {0, 0}, {1, 0}, {1, 1}, {0, 1},
+         {1, 0}, {0, 0}, {0, 1}, {1, 1}
+     };
+
+     for (int i=0; i < 6*4; ++i) {
+         mCoords.append(QVector2D(cubeTextureArray[i][0], cubeTextureArray[i][1]));
+         mVertices.append(QVector3D(mCenter.x() + cubeArray[i][0],
+                                    mCenter.y() + cubeArray[i][1],
+                                    mCenter.z() + cubeArray[i][2]));
+     }
 }
 
 QPair<QVector3D, QVector3D> Box::fireConditions() const

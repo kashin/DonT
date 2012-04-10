@@ -16,7 +16,7 @@ GameView::GameView(QWidget *parent)
     mProgram = new QGLShaderProgram(this);
     mVertexShader = new QGLShader(QGLShader::Vertex, this);
     mFragmentShader = new QGLShader(QGLShader::Fragment, this);
-    Cube* cube = new Cube(QVector3D(0, 0, 0), QString(":/images/Porsche_Wallpapers_7.jpg"), 0.25, this);
+    Cube* cube = new Cube(QVector3D(0, 0, 0), QString(":/images/DonT.png"), 0.25, this);
     mElements.append(cube);
 
     Box* box = new Box(QVector3D(0.1,0.1,0.2), QVector3D(0.1,0.4,0.5),
@@ -74,6 +74,8 @@ void GameView::initializeGL()
     // init textures
     foreach (DrawElement* element, mElements)
         element->setTexture(bindTexture(*element->texturePicture(), GL_TEXTURE_2D));
+
+    qglClearColor(Qt::darkCyan);
 }
 
 void GameView::resizeGL(int width, int height)
@@ -94,7 +96,6 @@ void GameView::resizeGL(int width, int height)
 
 void GameView::paintGL()
 {
-    qglClearColor(Qt::darkCyan);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QMatrix4x4 m;
