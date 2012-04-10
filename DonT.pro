@@ -46,3 +46,6 @@ OTHER_FILES += \
     vertexCode.vsh \
     fragmentCode.fsh \
     9mm_silver_bullet.jpg
+
+RESOURCES += \
+    DonT.qrc

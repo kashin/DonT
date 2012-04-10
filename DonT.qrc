@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file>fragmentCode.fsh</file>
+        <file>vertexCode.vsh</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>9mm_silver_bullet.jpg</file>
+        <file>Porsche_Wallpapers_7.jpg</file>
+        <file>DonT.png</file>
+    </qresource>
+</RCC>

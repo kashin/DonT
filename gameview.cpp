@@ -12,15 +12,15 @@
 GameView::GameView(QWidget *parent)
     : QGLWidget(parent)
 {
-    mFieldPicture = new QPixmap(QString("./DonT.png"));
+    mFieldPicture = new QPixmap(QString(":/images/DonT.png"));
     mProgram = new QGLShaderProgram(this);
     mVertexShader = new QGLShader(QGLShader::Vertex, this);
     mFragmentShader = new QGLShader(QGLShader::Fragment, this);
-    Cube* cube = new Cube(QVector3D(0, 0, 0), QString("./Porsche_Wallpapers_7.jpg"), 0.25, this);
+    Cube* cube = new Cube(QVector3D(0, 0, 0), QString(":/images/Porsche_Wallpapers_7.jpg"), 0.25, this);
     mElements.append(cube);
 
     Box* box = new Box(QVector3D(0.1,0.1,0.2), QVector3D(0.1,0.4,0.5),
-                       QString("./Porsche_Wallpapers_7.jpg"), this);
+                       QString(":/images/Porsche_Wallpapers_7.jpg"), this);
     mElements.append(box);
 }
 
@@ -47,12 +47,12 @@ void GameView::initializeGL()
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
 
     mVertexShader = new QGLShader(QGLShader::Vertex, this);
-    if (!mVertexShader->compileSourceFile("./vertexCode.vsh"))
+    if (!mVertexShader->compileSourceFile(":/shaders/vertexCode.vsh"))
     {
         qDebug() << Q_FUNC_INFO << "Can't compile vertex shader code: " << mVertexShader->log();
     }
     mFragmentShader = new QGLShader(QGLShader::Fragment, this);
-    if (!mFragmentShader->compileSourceFile("./fragmentCode.fsh"))
+    if (!mFragmentShader->compileSourceFile(":/shaders/fragmentCode.fsh"))
     {
         qDebug() << Q_FUNC_INFO << "Can't compile fragment shader code: " << mVertexShader->log();
     }
