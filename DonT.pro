@@ -27,10 +27,16 @@ QT += opengl
 SOURCES += main.cpp \
            mainwindow.cpp \
            cube.cpp \
-    gameview.cpp
+           gameview.cpp \
+           drawelement.cpp \
+           box.cpp \
+           bullet.cpp
 HEADERS += mainwindow.h \
            cube.h \
-    gameview.h
+           gameview.h \
+           drawelement.h \
+           box.h \
+           bullet.h
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
@@ -38,4 +44,5 @@ qtcAddDeployment()
 
 OTHER_FILES += \
     vertexCode.vsh \
-    fragmentCode.fsh
+    fragmentCode.fsh \
+    9mm_silver_bullet.jpg

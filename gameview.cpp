@@ -1,26 +1,43 @@
 #include "gameview.h"
+
 #include "cube.h"
+#include "bullet.h"
+
 #include <QDebug>
 #include <QMouseEvent>
 #include <QFile>
 #include <QGLShader>
 #include <QGLShaderProgram>
 
-GameView::GameView(QWidget *parent, qreal size)
-    : QGLWidget(parent),
-      mSize(size)
+GameView::GameView(QWidget *parent)
+    : QGLWidget(parent)
 {
-    mTexturePicture = new QPixmap(QString("./Porsche_Wallpapers_7.jpg"));
     mFieldPicture = new QPixmap(QString("./DonT.png"));
     mProgram = new QGLShaderProgram(this);
     mVertexShader = new QGLShader(QGLShader::Vertex, this);
     mFragmentShader = new QGLShader(QGLShader::Fragment, this);
+    Cube* cube = new Cube(QVector3D(0, 0, 0), QString("./Porsche_Wallpapers_7.jpg"), 0.25, this);
+    mElements.append(cube);
+
+    Box* box = new Box(QVector3D(0.1,0.1,0.2), QVector3D(0.1,0.4,0.5),
+                       QString("./Porsche_Wallpapers_7.jpg"), this);
+    mElements.append(box);
+}
+
+GameView::~GameView()
+{
+    foreach (DrawElement* element, mElements)
+        delete element;
+    mElements.clear();
+    foreach (Bullet* bullet, mBullets)
+        delete bullet;
+    mBullets.clear();
 }
 
 void GameView::initializeGL()
 {
+    makeCurrent();
     grabKeyboard();
-    makeGeometry();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 #ifndef QT_OPENGL_ES_2
@@ -53,6 +70,10 @@ void GameView::initializeGL()
         mProgram->bind();
     }
     mProgram->setUniformValue("texture", 0);
+
+    // init textures
+    foreach (DrawElement* element, mElements)
+        element->setTexture(bindTexture(*element->texturePicture(), GL_TEXTURE_2D));
 }
 
 void GameView::resizeGL(int width, int height)
@@ -86,59 +107,21 @@ void GameView::paintGL()
     mProgram->setUniformValue("matrix", m);
     mProgram->enableAttributeArray(PROGRAM_VERTEX_ATTRIBUTE);
     mProgram->enableAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE);
-    mProgram->setAttributeArray(PROGRAM_VERTEX_ATTRIBUTE, mCubeVertices.constData());
-    mProgram->setAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE, mCubeCoords.constData());
 
-    for (int i = 0; i < 6; ++i) {
-        glBindTexture(GL_TEXTURE_2D, mCubeTexture);
-        glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+    foreach (DrawElement* element, mElements)
+    {
+        element->draw(mProgram);
     }
 
-    mProgram->setAttributeArray(PROGRAM_VERTEX_ATTRIBUTE, mFieldVertices.constData());
-    mProgram->setAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE, mFieldCoords.constData());
-
-    for (int i = 0; i < 6; ++i) {
-        glBindTexture(GL_TEXTURE_2D, mFieldTexture);
-        glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
-    }
-
-    mProgram->setAttributeArray(PROGRAM_VERTEX_ATTRIBUTE, mPirVertices.constData());
-    mProgram->setAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE, mPirCoords.constData());
-
-    for (int i = 0; i < 6; ++i) {
-        glBindTexture(GL_TEXTURE_2D, mPirTexture);
-        glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+    foreach (Bullet* bullet, mBullets)
+    {
+        bullet->draw(mProgram);
     }
 }
 
+#if 0
 void GameView::makeGeometry()
 {
-    static const qreal cubeCoords[6][4][3] = {
-//        { { +mSize, -mSize, -mSize }, { -mSize, -mSize, -mSize }, { -mSize, +mSize, -mSize }, { +mSize, +mSize, -mSize } },
-//        { { +mSize, +mSize, -mSize }, { -mSize, +mSize, -mSize }, { -mSize, +mSize, +mSize }, { +mSize, +mSize, +mSize } },
-//        { { +mSize, -mSize, +mSize }, { +mSize, -mSize, -mSize }, { +mSize, +mSize, -mSize }, { +mSize, +mSize, +mSize } },
-//        { { -mSize, -mSize, -mSize }, { -mSize, -mSize, +mSize }, { -mSize, +mSize, +mSize }, { -mSize, +mSize, -mSize } },
-//        { { +mSize, -mSize, +mSize }, { -mSize, -mSize, +mSize }, { -mSize, -mSize, -mSize }, { +mSize, -mSize, -mSize } },
-//        { { -mSize, -mSize, +mSize }, { +mSize, -mSize, +mSize }, { +mSize, +mSize, +mSize }, { -mSize, +mSize, +mSize } }
-
-        { { 1,0,0 }, { 0,0,0 }, { 0,1,0 }, { 1,1,0 } },
-        { { 1,1,0 }, { 0,1,0 }, { 0,1,1 }, { 1,1,1 } },
-        { { 1,0,1 }, { 1,0,0 }, { 1,1,0 }, { 1,1,1 } },
-        { { 0,0,0 }, { 0,0,1 }, { 0,1,1 }, { 0,1,0 } },
-        { { 1,0,1 }, { 0,0,1 }, { 0,0,0 }, { 1,0,0 } },
-        { { 0,0,1 }, { 1,0,1 }, { 1,1,1 }, { 0,1,1 } }
-    };
-
-    mCubeTexture = bindTexture(*mTexturePicture, GL_TEXTURE_2D);
-
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            mCubeCoords.append(QVector2D((j == 0 || j == 3) ? 1 : -2 , (j == 0 || j == 1) ? 1 : -1));
-            mCubeVertices.append(QVector3D(0.4 * cubeCoords[i][j][0], 0.4 * cubeCoords[i][j][1],
-                           0.4 * cubeCoords[i][j][2]));
-        }
-    }
-
     static const qreal fieldCoords[6][4][3] = {
         { { 1,0,-2 }, { 0,0,-2 }, { 0,1,-2 }, { 1,1,-2 } },
         { { 1,1,-2 }, { 0,1,-2 }, { 0,1,-1}, { 1,1,-1} },
@@ -167,7 +150,7 @@ void GameView::makeGeometry()
         { { 0,1,-2 }, { 0,0,-2 }, { 0.25,0.25,-3}, { 0.25,0.5,-3} }
     };
 
-    mPirTexture = bindTexture(*mTexturePicture, GL_TEXTURE_2D);
+    mPirTexture = bindTexture(*mFieldPicture, GL_TEXTURE_2D);
 
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 4; ++j) {
@@ -177,6 +160,8 @@ void GameView::makeGeometry()
         }
     }
 }
+
+#endif
 
 void GameView::mouseMoveEvent(QMouseEvent *event)
 {
@@ -194,6 +179,12 @@ void GameView::mouseMoveEvent(QMouseEvent *event)
 void GameView::mousePressEvent(QMouseEvent *event)
 {
     mLastPosition = event->pos();
+    if (event->button() == Qt::MiddleButton && !mElements.isEmpty())
+    {
+        // FIXME: yeah, we are firing only from first element atm
+        fire(0);
+        updateGL();
+    }
 }
 
 void GameView::rotate(int xAngle, int yAngle, int zAngle)
@@ -201,47 +192,45 @@ void GameView::rotate(int xAngle, int yAngle, int zAngle)
     mXRotation += xAngle;
     mYRotation += yAngle;
     mZRotation += zAngle;
+    foreach (DrawElement* element, mElements)
+        element->setRotation(mXRotation, mYRotation, mZRotation);
+    foreach (Bullet* bullet, mBullets)
+        bullet->setRotation(mXRotation, mYRotation, mZRotation);
     updateGL();
-}
-
-void GameView::setCubePicture(const QString &name)
-{
-    if (mTexturePicture)
-        delete mTexturePicture;
-    mTexturePicture = new QPixmap(name);
 }
 
 void GameView::keyReleaseEvent(QKeyEvent *event)
 {
     switch(event->key())
     {
-
-    case Qt::Key_Down:
-        for (QVector<QVector3D>::iterator it = mCubeVertices.begin(); it != mCubeVertices.end(); ++it)
-        {
-            (*it) += QVector3D(0,0,-0.01);
-        }
+    case Qt::Key_Up:
+        foreach (DrawElement* element, mElements)
+            element->moveToVector(QVector3D(0,0,-0.01));
         updateGL();
         break;
-    case Qt::Key_Up:
-        for (QVector<QVector3D>::iterator it = mCubeVertices.begin(); it != mCubeVertices.end(); ++it)
-        {
-            (*it) += QVector3D(0,0,0.01);
-        }
+    case Qt::Key_Down:
+        foreach (DrawElement* element, mElements)
+            element->moveToVector(QVector3D(0,0,-0.01));
         updateGL();
         break;
     case Qt::Key_Left:
-        for (QVector<QVector3D>::iterator it = mCubeVertices.begin(); it != mCubeVertices.end(); ++it)
-        {
-            (*it) += QVector3D(-0.01,0,0);
-        }
+        foreach (DrawElement* element, mElements)
+            element->moveToVector(QVector3D(-0.01,0,0));
         updateGL();
         break;
     case Qt::Key_Right:
-        for (QVector<QVector3D>::iterator it = mCubeVertices.begin(); it != mCubeVertices.end(); ++it)
-        {
-            (*it) += QVector3D(0.01,0,0);
-        }
+        foreach (DrawElement* element, mElements)
+            element->moveToVector(QVector3D(0.01,0,0));
+        updateGL();
+        break;
+    case Qt::Key_PageUp:
+        foreach (DrawElement* element, mElements)
+            element->moveToVector(QVector3D(0,0.01,0));
+        updateGL();
+        break;
+    case Qt::Key_PageDown:
+        foreach (DrawElement* element, mElements)
+            element->moveToVector(QVector3D(0,-0.01,0));
         updateGL();
         break;
     default:
@@ -252,4 +241,23 @@ void GameView::keyReleaseEvent(QKeyEvent *event)
                return;
            }
     }
+}
+
+void GameView::fire(int elementIndex)
+{
+    if (elementIndex >= 0 && elementIndex < mElements.count())
+    {
+        const DrawElement* element = mElements.at(elementIndex);
+        QPair<QVector3D, QVector3D> fireConditions = element->fireConditions();
+        Bullet* bullet = new Bullet(fireConditions.first, Bullet::Bullet9mm, fireConditions.second, this);
+        bullet->setTexture(bindTexture(*bullet->texturePicture(), GL_TEXTURE_2D));
+        bullet->setRotation(mXRotation, mYRotation, mZRotation);
+        mBullets.append(bullet);
+        connect(bullet, SIGNAL(bulletMoved()), this, SLOT(onElementMoved()));
+    }
+}
+
+void GameView::onElementMoved()
+{
+    updateGL();
 }

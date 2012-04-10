@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       mCentralWidget(0)
 {
-    mCentralWidget = new GameView(this, 0.5);
+    mCentralWidget = new GameView(this);
     connect (mCentralWidget, SIGNAL(closeApplication()), this, SLOT(close()));
     setCentralWidget(mCentralWidget);
 }
