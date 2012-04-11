@@ -34,6 +34,7 @@ protected:
 
 private slots:
     void onElementMoved();
+    void onBulletStoped(Bullet* bullet);
 
 private:
     QList<DrawElement*> mElements;

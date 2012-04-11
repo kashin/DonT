@@ -19,7 +19,7 @@ GameView::GameView(QWidget *parent)
     Cube* cube = new Cube(QVector3D(0, 0, 0), QString(":/images/DonT.png"), 0.25, this);
     mElements.append(cube);
 
-    Box* box = new Box(QVector3D(0.1,0.1,0.2), QVector3D(0.1,0.4,0.5),
+    Box* box = new Box(QVector3D(-0.1,0.2,-0.3), QVector3D(0.1,0.2,0.4),
                        QString(":/images/Porsche_Wallpapers_7.jpg"), this);
     mElements.append(box);
 }
@@ -247,15 +247,26 @@ void GameView::fire(int elementIndex)
     {
         const DrawElement* element = mElements.at(elementIndex);
         QPair<QVector3D, QVector3D> fireConditions = element->fireConditions();
-        Bullet* bullet = new Bullet(fireConditions.first, Bullet::Bullet9mm, fireConditions.second, this);
+        Bullet* bullet = new Bullet(fireConditions.first, Bullet::Rocket, fireConditions.second, this);
         bullet->setTexture(bindTexture(*bullet->texturePicture(), GL_TEXTURE_2D));
         bullet->setRotation(mXRotation, mYRotation, mZRotation);
         mBullets.append(bullet);
         connect(bullet, SIGNAL(bulletMoved()), this, SLOT(onElementMoved()));
+        connect(bullet, SIGNAL(bulletStoped(Bullet*)), this, SLOT(onBulletStoped(Bullet*)));
     }
 }
 
 void GameView::onElementMoved()
 {
     updateGL();
+}
+
+void GameView::onBulletStoped(Bullet *bullet)
+{
+    if (mBullets.contains(bullet))
+    {
+        mBullets.removeAll(bullet);
+        bullet->deleteLater();
+        updateGL();
+    }
 }

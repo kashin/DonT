@@ -39,9 +39,9 @@ Bullet::~Bullet()
 
 void Bullet::initBulletsSizesMap()
 {
-    mBulletSizes.insert(Bullet9mm, QVector3D(0.000002f, 0.000009f, 0.000002f));
-    mBulletSizes.insert(Bullet105mm, QVector3D(0.00001f, 0.000105f, 0.00001f));
-    mBulletSizes.insert(Rocket, QVector3D(0.0001f, 0.001f, 0.0001f));
+    mBulletSizes.insert(Bullet9mm, QVector3D(0.0009f, 0.0002f, 0.0002f));
+    mBulletSizes.insert(Bullet105mm, QVector3D(0.0105f, 0.001f, 0.001f));
+    mBulletSizes.insert(Rocket, QVector3D(0.1f, 0.01f, 0.01f));
 }
 
 void Bullet::draw(QGLShaderProgram *program)
@@ -85,7 +85,10 @@ const QPixmap* Bullet::texturePicture() const
 void Bullet::onVelocityTimer()
 {
     if (mBulletStoped >= 0)
+    {
+        emit bulletStoped(this);
         return;
+    }
     ++mBulletStoped;
     moveToVector(mVelocity);
     emit bulletMoved();

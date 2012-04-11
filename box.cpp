@@ -66,13 +66,13 @@ void Box::draw(QGLShaderProgram *program)
 void Box::makeGeometry()
 {
 
-    static qreal cubeArray[][3] = {
-         {0, 0, 0}, {0, 0.1, 0}, {0.1, 0.1, 0}, {0.1, 0, 0},
-         {0, 0, 0.1}, {0.1, 0, 0.1}, {0.1, 0.1, 0.1}, {0, 0.1, 0.1},
-         {0, 0, 0}, {0.1, 0, 0}, {0.1, 0, 0.1}, {0, 0, 0.1},
-         {0, 0.1, 0}, {0, 0.1, 0.1}, {0.1, 0.1, 0.1}, {0.1, 0.1, 0},
-         {0, 0.1, 0}, {0, 0, 0}, {0, 0, 0.1}, {0, 0.1, 0.1},
-         {0.1, 0, 0}, {0.1, 0.1, 0}, {0.1, 0.1, 0.1}, {0.1, 0, 0.1}
+    qreal cubeArray[][3] = {
+         {0, 0, 0}, {0, mSidesSize.y(), 0}, {mSidesSize.x(), mSidesSize.y(), 0}, {mSidesSize.x(), 0, 0},
+         {0, 0, mSidesSize.z()}, {mSidesSize.x(), 0, mSidesSize.z()}, {mSidesSize.x(), mSidesSize.y(), mSidesSize.z()}, {0, mSidesSize.y(), mSidesSize.z()},
+         {0, 0, 0}, {mSidesSize.x(), 0, 0}, {mSidesSize.x(), 0, mSidesSize.z()}, {0, 0, mSidesSize.z()},
+         {0, mSidesSize.y(), 0}, {0, mSidesSize.y(), mSidesSize.z()}, {mSidesSize.x(), mSidesSize.y(), mSidesSize.z()}, {mSidesSize.x(), mSidesSize.y(), 0},
+         {0, mSidesSize.y(), 0}, {0, 0, 0}, {0, 0, mSidesSize.z()}, {0, mSidesSize.y(), mSidesSize.z()},
+         {mSidesSize.x(), 0, 0}, {mSidesSize.x(), mSidesSize.y(), 0}, {mSidesSize.x(), mSidesSize.y(), mSidesSize.z()}, {mSidesSize.x(), 0, mSidesSize.z()}
      };
 
      static qreal cubeTextureArray[][2] = {
@@ -94,6 +94,6 @@ void Box::makeGeometry()
 
 QPair<QVector3D, QVector3D> Box::fireConditions() const
 {
-    return qMakePair(mCenter+(mSidesSize/2), QVector3D(0.005, 0.0, 0.0));
+    return qMakePair(mCenter+(mSidesSize/2), QVector3D(0.005, 0, 0));
 }
 

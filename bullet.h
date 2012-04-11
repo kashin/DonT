@@ -40,6 +40,7 @@ private slots:
 
 signals:
     void bulletMoved();
+    void bulletStoped(Bullet* bullet);
 
 private:
     void initBulletsSizesMap();
